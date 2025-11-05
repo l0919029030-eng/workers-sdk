@@ -180,6 +180,47 @@ const defaultSelectVariant = async (ctx: C3Context) => {
 	return ctx.args.lang;
 };
 
+/**
+ * Helper function to check if a template supports a specific language
+ */
+const templateSupportsLanguage = (
+	config: TemplateConfig,
+	lang: string,
+): boolean => {
+	const { copyFiles } = config;
+	// If the template has no copyFiles or uses a single path, it doesn't support variants
+	if (!copyFiles || isVariantInfo(copyFiles)) {
+		return false;
+	}
+	// If the template has variants, check if the specified language is supported
+	if (copyFiles.variants && !copyFiles.variants[lang]) {
+		return false;
+	}
+	return true;
+};
+
+const filterTemplatesByLanguage = (
+	templates: TemplateMap,
+	lang: string | undefined,
+): TemplateMap => {
+	// If no language is specified, return all templates
+	if (!lang) {
+		return templates;
+	}
+
+	return Object.fromEntries(
+		Object.entries(templates).filter(([, config]) => {
+			if ("platformVariants" in config) {
+				return (
+					templateSupportsLanguage(config.platformVariants.pages, lang) ||
+					templateSupportsLanguage(config.platformVariants.workers, lang)
+				);
+			}
+			return templateSupportsLanguage(config, lang);
+		}),
+	);
+};
+
 export type TemplateMap = Record<
 	string,
 	TemplateConfig | MultiPlatformTemplateConfig
@@ -332,11 +373,20 @@ export const createContext = async (
 
 	const experimental = args.experimental;
 
-	const frameworkMap = getFrameworkMap({ experimental });
-	const helloWorldTemplateMap = getHelloWorldTemplateMap({
-		experimental,
-	});
-	const otherTemplateMap = getOtherTemplateMap({ experimental });
+	const frameworkMap = filterTemplatesByLanguage(
+		getFrameworkMap({ experimental }),
+		args.lang,
+	);
+	const helloWorldTemplateMap = filterTemplatesByLanguage(
+		getHelloWorldTemplateMap({
+			experimental,
+		}),
+		args.lang,
+	);
+	const otherTemplateMap = filterTemplatesByLanguage(
+		getOtherTemplateMap({ experimental }),
+		args.lang,
+	);
 
 	let linesPrinted = 0;
 
@@ -557,6 +607,13 @@ export const createContext = async (
 				};
 			},
 		);
+
+		// If no templates are available for the specified language, throw an error
+		if (args.lang && templateOptions.length === 0) {
+			throw new Error(
+				`No templates available for language "${args.lang}" in the "${category}" category.`,
+			);
+		}
 
 		const type = await processArgument(args, "type", {
 			type: "select",
