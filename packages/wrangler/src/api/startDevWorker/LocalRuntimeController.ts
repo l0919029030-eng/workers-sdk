@@ -20,7 +20,6 @@ import {
 	unwrapHook,
 } from "./utils";
 import type { RemoteProxySession } from "../remoteBindings";
-import type { DevEnv } from "./DevEnv";
 import type {
 	BundleCompleteEvent,
 	BundleStartEvent,
@@ -154,10 +153,6 @@ export async function convertToConfigBundle(
 export class LocalRuntimeController extends RuntimeController {
 	#log = MF.buildLog();
 	#currentBundleId = 0;
-
-	constructor(devEnv?: DevEnv) {
-		super(devEnv);
-	}
 
 	// ******************
 	//   Event Handlers

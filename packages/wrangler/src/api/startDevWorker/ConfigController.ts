@@ -47,7 +47,6 @@ import {
 	extractBindingsOfType,
 	unwrapHook,
 } from "./utils";
-import type { DevEnv } from "./DevEnv";
 import type { DevRegistryUpdateEvent } from "./events";
 import type {
 	StartDevWorkerInput,
@@ -484,10 +483,6 @@ export class ConfigController extends Controller {
 
 	#configWatcher?: ReturnType<typeof watch>;
 	#abortController?: AbortController;
-
-	constructor(devEnv: DevEnv) {
-		super(devEnv);
-	}
 
 	async #ensureWatchingConfig(configPath: string | undefined) {
 		await this.#configWatcher?.close();
