@@ -54,7 +54,9 @@ export async function runAutoConfig(
 	autoConfigDetails = updatedAutoConfigDetails;
 
 	if (!autoConfigDetails.outputDir) {
-		throw new FatalError("Cannot deploy project without an output directory");
+		throw new FatalError(
+			"Cannot configure project without an output directory"
+		);
 	}
 
 	const baseWranglerConfig: RawConfig = {
@@ -72,7 +74,7 @@ export async function runAutoConfig(
 	);
 
 	if (!confirmed) {
-		throw new FatalError("Deployment aborted");
+		throw new FatalError("Autoconfig process aborted");
 	}
 
 	logger.debug(
