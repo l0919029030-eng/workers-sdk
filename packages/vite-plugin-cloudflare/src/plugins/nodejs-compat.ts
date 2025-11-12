@@ -152,6 +152,13 @@ export const nodeJsCompatWarningsPlugin = createPlugin(
 			NodeJsCompatWarnings
 		>();
 
+		// Render captured warnings immediately if the process exits
+		process.on("exit", () => {
+			for (const nodeJsCompatWarnings of nodeJsCompatWarningsMap.values()) {
+				nodeJsCompatWarnings.renderWarnings();
+			}
+		});
+
 		return {
 			// We must ensure that the `resolveId` hook runs before the built-in ones.
 			// Otherwise we never see the Node.js built-in imports since they get handled by default Vite behavior.
