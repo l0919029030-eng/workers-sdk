@@ -155,7 +155,7 @@ export class LocalRuntimeController extends RuntimeController {
 	#log = MF.buildLog();
 	#currentBundleId = 0;
 
-	constructor(devEnv: DevEnv) {
+	constructor(devEnv?: DevEnv) {
 		super(devEnv);
 	}
 
@@ -443,13 +443,13 @@ export class LocalRuntimeController extends RuntimeController {
 	// *********************
 
 	emitReloadStartEvent(data: ReloadStartEvent) {
-		this.emit("reloadStart", data);
+		this.devEnv.dispatch(data);
 	}
 	emitReloadCompleteEvent(data: ReloadCompleteEvent) {
-		this.emit("reloadComplete", data);
+		this.devEnv.dispatch(data);
 	}
 	emitDevRegistryUpdateEvent(data: DevRegistryUpdateEvent): void {
-		this.emit("devRegistryUpdate", data);
+		this.devEnv.dispatch(data);
 	}
 }
 
